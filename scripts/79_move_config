@@ -1,0 +1,19 @@
+# Copyright (C) 2012-2015 OpenWrt.org
+
+move_config() {
+        local partdev parttype=ext4
+
+        . /lib/upgrade/common.sh
+
+        if export_bootdevice && export_partdevice partdev 1; then
+                mkdir -p /tmp/boot
+                part_magic_fat "/dev/$partdev" && parttype=vfat
+                mount -t $parttype -o rw,noatime "/dev/$partdev" /tmp/boot
+                if [ -f "/tmp/boot/$BACKUP_FILE" ]; then
+                        mv -f "/tmp/boot/$BACKUP_FILE" /
+                fi
+                ln -s /tmp/boot/boot /boot
+        fi
+}
+
+boot_hook_add preinit_mount_root move_config
