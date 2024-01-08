@@ -1,5 +1,42 @@
 #!/bin/bash
 
+CURRENT_PATH=$(pwd)
+
+clone_or_update_git_repo() {
+  # 参数检查
+  if [ "$#" -lt 2 ]; then
+    echo "Usage: clone_or_update_git_repo <git_url> <target_directory> [branch] [subdirectory]"
+    return 1
+  fi
+
+  local git_url="$1"
+  local source_target_directory="$2"
+  local target_directory="$2"
+  local branch="$3"
+  local subdirectory="$4"
+
+  if [ -n "$subdirectory" ]; then
+    target_directory=$CURRENT_PATH/repos/$(echo "$git_url" | awk -F'/' '{print $(NF-1)"-"$NF}')
+  fi
+
+  # 检查目标目录是否存在
+  if [ -d "$target_directory" ]; then
+    pushd "$target_directory" || return 1
+    git pull
+    popd
+  else
+    if [ -n "$branch" ]; then
+      git clone --depth=1 -b "$branch" "$git_url" "$target_directory"
+    else
+      git clone --depth=1 "$git_url" "$target_directory"
+    fi
+  fi
+
+  if [ -n "$subdirectory" ]; then
+    cp -a $target_directory/$subdirectory $source_target_directory
+  fi
+}
+
 # 修改默认IP
 # sed -i 's/192.168.1.1/10.0.0.1/g' package/base-files/files/bin/config_generate
 
