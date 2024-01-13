@@ -152,9 +152,5 @@ find package/luci-theme-*/* -type f -name '*luci-theme-*' -print -exec sed -i '/
 
 cp -a $GITHUB_WORKSPACE/scripts/79_move_config target/linux/x86/base-files/lib/preinit/
 
-cp --verbose -a $GITHUB_WORKSPACE/scripts/btop-Makefile package/feeds/packages/btop/Makefile
-cp --verbose -a $GITHUB_WORKSPACE/scripts/btrfs-progs-Makefile package/feeds/packages/btrfs-progs/Makefile
-cp --verbose -a $GITHUB_WORKSPACE/scripts/perl-Makefile package/feeds/packages/perl/Makefile
-
 ./scripts/feeds update -a
 ./scripts/feeds install -a
