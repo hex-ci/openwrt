@@ -53,6 +53,7 @@ echo "/root/" >> package/base-files/files/etc/sysupgrade.conf
 echo "/etc/AdGuardHome.yaml" >> package/base-files/files/etc/sysupgrade.conf
 
 sed -i 's|rw,noatime,discard|rw,noatime|g' package/lean/automount/files/15-automount
+sed -i 's|256|1024|g' target/linux/x86/image/Makefile
 
 # 移除要替换的包
 rm -rf feeds/packages/net/mosdns
