@@ -57,6 +57,7 @@ sed -i 's|256|1024|g' target/linux/x86/image/Makefile
 
 # 移除要替换的包
 rm -rf feeds/packages/net/mosdns
+rm -rf feeds/packages/net/v2ray-geodata
 rm -rf feeds/packages/net/msd_lite
 rm -rf feeds/packages/net/smartdns
 rm -rf feeds/luci/themes/luci-theme-argon
@@ -102,8 +103,9 @@ git clone --depth=1 https://github.com/ximiTech/luci-app-msd_lite package/luci-a
 git clone --depth=1 https://github.com/ximiTech/msd_lite package/msd_lite
 
 # MosDNS
-clone_or_update_git_repo https://github.com/sbwml/luci-app-mosdns package/luci-app-mosdns "" luci-app-mosdns
-clone_or_update_git_repo https://github.com/sbwml/luci-app-mosdns package/mosdns "" mosdns
+clone_or_update_git_repo https://github.com/sbwml/luci-app-mosdns package/luci-app-mosdns "v5-lua" luci-app-mosdns
+clone_or_update_git_repo https://github.com/sbwml/luci-app-mosdns package/mosdns "v5-lua" mosdns
+clone_or_update_git_repo https://github.com/sbwml/v2ray-geodata package/v2ray-geodata
 
 # DDNS.to
 clone_or_update_git_repo https://github.com/linkease/nas-packages-luci package/luci-app-ddnsto "" luci/luci-app-ddnsto
