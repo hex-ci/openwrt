@@ -112,8 +112,8 @@ clone_or_update_git_repo https://github.com/linkease/nas-packages-luci package/l
 clone_or_update_git_repo https://github.com/linkease/nas-packages package/ddnsto "" network/services/ddnsto
 
 # Alist
-clone_or_update_git_repo https://github.com/sbwml/luci-app-alist package/luci-app-alist "" luci-app-alist
-clone_or_update_git_repo https://github.com/sbwml/luci-app-alist package/alist "" alist
+clone_or_update_git_repo https://github.com/sbwml/luci-app-alist package/luci-app-alist "lua" luci-app-alist
+clone_or_update_git_repo https://github.com/sbwml/luci-app-alist package/alist "lua" alist
 
 # iStore
 clone_or_update_git_repo https://github.com/linkease/istore-ui package/app-store-ui "" app-store-ui
