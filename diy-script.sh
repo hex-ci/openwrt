@@ -49,9 +49,6 @@ sed -i 's/\/bin\/ash/\/usr\/bin\/fish/g' package/base-files/files/etc/passwd
 # TTYD 自动登录
 # sed -i 's|/bin/login|/bin/login -f root|g' feeds/packages/utils/ttyd/files/ttyd.config
 
-echo "/root/" >> package/base-files/files/etc/sysupgrade.conf
-echo "/etc/AdGuardHome.yaml" >> package/base-files/files/etc/sysupgrade.conf
-
 sed -i 's|rw,noatime,discard|rw,noatime|g' package/lean/automount/files/15-automount
 sed -i 's|256|1024|g' target/linux/x86/image/Makefile
 
