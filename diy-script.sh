@@ -52,6 +52,11 @@ sed -i 's/\/bin\/ash/\/usr\/bin\/fish/g' package/base-files/files/etc/passwd
 sed -i 's|rw,noatime,discard|rw,noatime|g' package/lean/automount/files/15-automount
 sed -i 's|256|1024|g' target/linux/x86/image/Makefile
 
+# 使用 O3 级别的优化
+sed -i 's/Os/O3/g' include/target.mk
+
+echo "net.netfilter.nf_conntrack_tcp_max_retrans=5" >> package/kernel/linux/files/sysctl-nf-conntrack.conf
+
 # 移除要替换的包
 rm -rf feeds/packages/net/mosdns
 rm -rf feeds/packages/net/v2ray-geodata
@@ -76,7 +81,7 @@ clone_or_update_git_repo https://github.com/openwrt/packages package/telnet-bsd 
 
 # 科学上网插件
 git clone --depth=1 https://github.com/jerrykuku/lua-maxminddb package/lua-maxminddb
-clone_or_update_git_repo https://github.com/vernesong/OpenClash package/luci-app-openclash "" luci-app-openclash
+clone_or_update_git_repo https://github.com/vernesong/OpenClash package/luci-app-openclash "dev" luci-app-openclash
 
 # Themes
 git clone --depth=1 -b 18.06 https://github.com/kiddin9/luci-theme-edge package/luci-theme-edge
