@@ -99,6 +99,7 @@ jobs:
     - name: Install Feeds
       run: |
         cd $OPENWRT_PATH
+        sed -i 's/luci\.git;openwrt-23\.05/luci/g' feeds.conf.default
         ./scripts/feeds update -a
         ./scripts/feeds install -a
 
