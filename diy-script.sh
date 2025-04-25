@@ -72,7 +72,7 @@ rm -rf feeds/luci/applications/luci-app-serverchan
 git clone --depth=1 https://github.com/kongfl888/luci-app-adguardhome package/luci-app-adguardhome
 git clone --depth=1 -b openwrt-18.06 https://github.com/tty228/luci-app-wechatpush package/luci-app-serverchan
 git clone --depth=1 https://github.com/ilxp/luci-app-ikoolproxy package/luci-app-ikoolproxy
-git clone --depth=1 https://github.com/esirplayground/luci-app-poweroff package/luci-app-poweroff
+git clone --depth=1 https://github.com/esirplayground/luci-app-poweroff package/luci-app-poweroff main
 git clone --depth=1 https://github.com/destan19/OpenAppFilter package/OpenAppFilter
 git clone --depth=1 https://github.com/Jason6111/luci-app-netdata package/luci-app-netdata
 clone_or_update_git_repo https://github.com/Lienol/openwrt-package package/luci-app-filebrowser "" luci-app-filebrowser
@@ -97,8 +97,8 @@ clone_or_update_git_repo https://github.com/hex-ci/luci-theme-rosy package/luci-
 # cp -f $GITHUB_WORKSPACE/images/bg1.jpg package/luci-theme-argon/htdocs/luci-static/argon/img/bg1.jpg
 
 # SmartDNS
-git clone --depth=1 -b lede https://github.com/pymumu/luci-app-smartdns package/luci-app-smartdns "lede"
-git clone --depth=1 https://github.com/pymumu/openwrt-smartdns package/smartdns
+git clone --depth=1 -b lede https://github.com/pymumu/luci-app-smartdns feeds/luci/applications/luci-app-smartdns
+git clone --depth=1 https://github.com/pymumu/openwrt-smartdns feeds/packages/net/smartdns
 
 # msd_lite
 git clone --depth=1 https://github.com/ximiTech/luci-app-msd_lite package/luci-app-msd_lite
