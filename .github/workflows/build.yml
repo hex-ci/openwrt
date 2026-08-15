@@ -10,7 +10,6 @@ env:
   REPO_BRANCH: master
   CONFIG_FILE: configs/x86_64.config
   DIY_SCRIPT: diy-script.sh
-  CLASH_KERNEL: amd64
   CACHE_TOOLCHAIN: true
   UPLOAD_BIN_DIR: false
   FIRMWARE_RELEASE: true
@@ -96,25 +95,13 @@ jobs:
         mixkey: ${{ env.SOURCE_REPO }}-${{ env.REPO_BRANCH }}-${{ env.DEVICE_TARGET }}-${{ env.DEVICE_SUBTARGET }}
         prefix: ${{ env.OPENWRT_PATH }}
 
-    - name: Install Feeds
-      run: |
-        cd $OPENWRT_PATH
-        sed -i 's/luci\.git;openwrt-23\.05/luci/g' feeds.conf.default
-        ./scripts/feeds update -a
-        ./scripts/feeds install -a
-
     - name: Load Custom Configuration
       run: |
-        [ -e backups/backup.tar.gz ] && tar xvzf backups/backup.tar.gz -C $OPENWRT_PATH/files/
-        [ -e files ] && mv files $OPENWRT_PATH/files
-        [ -e $CONFIG_FILE ] && mv $CONFIG_FILE $OPENWRT_PATH/.config
         chmod +x $GITHUB_WORKSPACE/scripts/*.sh
         chmod +x $DIY_SCRIPT
         cd $OPENWRT_PATH
         $GITHUB_WORKSPACE/$DIY_SCRIPT
-        $GITHUB_WORKSPACE/scripts/preset-clash-core.sh $CLASH_KERNEL
-        $GITHUB_WORKSPACE/scripts/preset-terminal-tools.sh
-        $GITHUB_WORKSPACE/scripts/preset-adguard-core.sh $CLASH_KERNEL
+        $GITHUB_WORKSPACE/scripts/preset-clash-core.sh
 
     - name: Download DL Package
       run: |

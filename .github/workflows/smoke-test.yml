@@ -1,0 +1,27 @@
+name: smoke-test
+
+on:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 40
+    steps:
+      - name: Checkout
+        uses: actions/checkout@main
+
+      - name: Install QEMU
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y qemu-system-x86
+
+      - name: Download firmware
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release download X86_64 --repo "$GITHUB_REPOSITORY" --pattern '*squashfs-combined.vmdk' --clobber
+          ls -lh *squashfs-combined.vmdk
+
+      - name: Smoke test
+        run: node test-vm.js --image "$(ls *squashfs-combined.vmdk | head -1)" --timeout 600
