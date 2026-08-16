@@ -118,7 +118,22 @@ jobs:
         mkdir -p files/etc/uci-defaults
         cp $GITHUB_WORKSPACE/scripts/init-settings.sh files/etc/uci-defaults/99-init-settings
         echo -e "$(nproc) thread compile"
-        make -j$(nproc) || make -j1 V=s
+        # 非 verbose 的 make 只打印每个包"开始"那一行，卡住时看不出是谁还在编；
+        # 后台每 60s 从进程命令行里提取 build_dir 路径，打印当前正在编译的包
+        (
+          while :; do
+            sleep 60
+            pkgs=$(ps -eo args 2>/dev/null | grep -oE 'build_dir/target-[^ /]+/[^ /]+' | sort -u | sed 's/^/    /')
+            if [ -n "$pkgs" ]; then
+              printf '>>> %s 正在编译:\n%s\n' "$(date -u '+%H:%M:%S')" "$pkgs"
+            else
+              printf '>>> %s 无活跃编译进程\n' "$(date -u '+%H:%M:%S')"
+            fi
+          done
+        ) &
+        MONITOR_PID=$!
+        trap 'kill "$MONITOR_PID" 2>/dev/null || true' EXIT
+        make -j$(nproc) V=s || make -j1 V=s
         echo "status=success" >> $GITHUB_OUTPUT
         echo "DATE=$(date +"%Y-%m-%d %H:%M:%S")" >> $GITHUB_ENV
         echo "FILE_DATE=$(date +"%Y.%m.%d")" >> $GITHUB_ENV
