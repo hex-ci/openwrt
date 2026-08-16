@@ -68,7 +68,11 @@ sed -i 's/ifneq ($(CONFIG_PACKAGE_vim-runtime)$(CONFIG_PACKAGE_vim-help),)/ifneq
 clone_pkg "https://github.com/tty228/luci-app-wechatpush" "package/luci-app-serverchan" "openwrt-18.06"
 clone_pkg "https://github.com/destan19/OpenAppFilter" "package/OpenAppFilter"
 clone_pkg "https://github.com/sirpdboy/luci-app-eqosplus" "package/luci-app-eqosplus"
-clone_pkg "https://github.com/stackia/rtp2httpd" "package/rtp2httpd"
+clone_pkg "https://github.com/stackia/rtp2httpd" "package/rtp2httpd" "" "openwrt-support/rtp2httpd"
+clone_pkg "https://github.com/stackia/rtp2httpd" "package/luci-app-rtp2httpd" "" "openwrt-support/luci-app-rtp2httpd"
+# 仓库无根 Makefile，包在 openwrt-support/ 子目录；用 Makefile.versioned 固定版本
+cp -a package/rtp2httpd/Makefile.versioned package/rtp2httpd/Makefile
+cp -a package/luci-app-rtp2httpd/Makefile.versioned package/luci-app-rtp2httpd/Makefile
 clone_pkg "https://github.com/vernesong/OpenClash" "package/luci-app-openclash" "dev" "luci-app-openclash"
 clone_pkg "https://github.com/kiddin9/luci-theme-edge" "package/luci-theme-edge"
 clone_pkg "https://github.com/jerrykuku/luci-theme-argon" "package/luci-theme-argon"
