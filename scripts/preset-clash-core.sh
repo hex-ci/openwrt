@@ -1,4 +1,5 @@
 #!/bin/bash
+
 set -e
 
 mkdir -p files/etc/openclash/core
