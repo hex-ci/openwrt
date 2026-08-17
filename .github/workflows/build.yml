@@ -133,7 +133,7 @@ jobs:
         ) &
         MONITOR_PID=$!
         trap 'kill "$MONITOR_PID" 2>/dev/null || true' EXIT
-        make -j$(nproc) V=s || make -j1 V=s
+        make -j$(nproc) || make -j1 V=s
         echo "status=success" >> $GITHUB_OUTPUT
         echo "DATE=$(date +"%Y-%m-%d %H:%M:%S")" >> $GITHUB_ENV
         echo "FILE_DATE=$(date +"%Y.%m.%d")" >> $GITHUB_ENV
