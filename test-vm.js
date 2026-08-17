@@ -28,6 +28,12 @@ const path = require("path");
 
 const RESULTS = [];
 
+// 根 shell 提示符形如 "root@<主机名>:/#"。主机名因镜像而异：公有仓库用 lede 默认
+// "LEDE"（启动早期短暂为 "(none)"），local-build 由备份恢复成 "OpenWrt"。
+// 测试脚本不能硬编码主机名，否则提示符永远匹配不上——就是本次 CI 冒烟测试超时的根因。
+const PROMPT_RE = /root@[^\s:]+:\/#/;
+const PROMPT_RE_G = /root@[^\s:]+:\/#/g;
+
 function log(msg) {
   console.log(`[test-vm] ${msg}`);
 }
@@ -136,19 +142,19 @@ class Console {
   }
 
   sendCmd(cmd, waitMs = 2000, marker = null) {
-    // 等待命令真正执行完：shell 执行完会打印新 prompt（root@OpenWrt:/#）。
+    // 等待命令真正执行完：shell 执行完会打印新 prompt（root@<主机名>:/#）。
     // 注意: boot 阶段残留的 \r 会触发额外 prompt，导致"prompt 增加"误判。
     // 因此先等命令回显出现（shell 收到命令），再等 prompt 增加。
     // 返回本次命令的新输出（slice 发送前的部分），避免旧 buf 干扰正则匹配。
     const cmdHead = cmd.slice(0, 12);
     const startPos = this.buf.length;
     return new Promise((resolve) => {
-      const promptBefore = (this.buf.match(/root@OpenWrt:\/#/g) || []).length;
+      const promptBefore = (this.buf.match(PROMPT_RE_G) || []).length;
       this.sendSlow(cmd + "\r").then(() => {
         const deadline = Date.now() + waitMs;
         const poll = () => {
           const echoed = this.buf.includes(cmdHead); // shell 已收到命令（回显）
-          const promptNow = (this.buf.match(/root@OpenWrt:\/#/g) || []).length;
+          const promptNow = (this.buf.match(PROMPT_RE_G) || []).length;
           if (echoed && promptNow > promptBefore) return resolve(this.buf.slice(startPos));
           if (marker && this.buf.includes(marker)) return resolve(this.buf.slice(startPos));
           if (Date.now() >= deadline) return resolve(this.buf.slice(startPos));
@@ -245,20 +251,27 @@ async function main() {
     // ---- 1. 启动 + 登录 ----
     // 注意: OpenWrt 串口 getty 是 askfirst 模式——不主动打印 prompt，
     // 必须发送回车才会启动 shell（手动测试验证过: 发送 \r 后出现 BusyBox banner）。
-    // 策略: 定期发回车唤醒，直到出现完整 shell prompt（root@OpenWrt:/#）。
+    // 策略: 定期发回车唤醒，直到出现完整 root shell prompt（root@<主机名>:/#）。
     // 陷阱: "root@" 太宽松会误匹配内核日志（如 cmdline 里的 root=...），
-    // 必须在系统真正进 shell 后才发测试命令，否则字节被启动日志淹没。
+    // 所以 PROMPT_RE 要求 "root@" + 主机名 + ":/#" 全匹配，主机名随镜像变化由正则吸收。
     const bootDeadline = Date.now() + args.timeout * 1000;
     const bootStart = Date.now();
     let bootHit = null;
+    let lastLogAt = 0;
     while (Date.now() < bootDeadline) {
-      if (term.buf.includes("root@OpenWrt:/#")) { bootHit = "prompt"; break; }
+      if (PROMPT_RE.test(term.buf)) { bootHit = "prompt"; break; }
       if (term.buf.includes("login:")) { bootHit = "login"; break; }
       term.send("\r"); // askfirst 唤醒
+      // 每 30s 报一次进度（累计字节数 + 最新输出），区分"启动慢"与"串口死/卡死"（一直 0 或不再增长）
+      if (Date.now() - lastLogAt >= 30000) {
+        lastLogAt = Date.now();
+        log(`  等待启动 ${Math.round((Date.now() - bootStart) / 1000)}s: 串口累计 ${term.buf.length} 字节；尾部: ${JSON.stringify(term.buf.slice(-120).trim())}`);
+      }
       await new Promise(r => setTimeout(r, 3000));
     }
     if (!bootHit) {
-      record("系统启动到登录界面", false, "超时未见 shell prompt（askfirst 回车唤醒无效）");
+      record("系统启动到登录界面", false, `超时未见 shell prompt（askfirst 回车唤醒无效，串口累计 ${term.buf.length} 字节）`);
+      log(`[调试] 启动超时，串口尾部转储（共 ${term.buf.length} 字节）:\n${term.buf.slice(-3000)}`);
       return 1;
     }
     record("系统启动到登录界面", true, `串口已出现 ${bootHit === "login" ? "login 提示" : "shell prompt"}（约 ${Math.round((Date.now() - bootStart) / 1000)}s）`);
@@ -266,11 +279,11 @@ async function main() {
     // 若停在 login: 则尝试空密码登录；否则已直接进 shell
     if (bootHit === "login") {
       term.send("root\r");
-      await term.waitFor(["Password:", "root@OpenWrt:/#"], 30000);
+      await term.waitFor(["Password:", PROMPT_RE], 30000);
       if (term.buf.includes("Password:")) {
         term.send("\r");
-        const sh = await term.waitFor(["root@OpenWrt:/#", "incorrect", "denied"], 15000);
-        if (!sh || !term.buf.includes("root@OpenWrt:/#")) {
+        const sh = await term.waitFor([PROMPT_RE, "incorrect", "denied"], 15000);
+        if (!sh || !PROMPT_RE.test(term.buf)) {
           record("root 登录", false, "空密码登录失败（备份配置可能设置了 root 密码）");
           return 1;
         }
@@ -402,7 +415,7 @@ async function main() {
       const cmd = SHUT_CMDS[i];
       term.buf = "";
       term.send("\r");
-      const idle = await term.waitFor([/root@OpenWrt:\/#/], 15000);
+      const idle = await term.waitFor([PROMPT_RE], 15000);
       if (!idle) log(`[调试] 尝试 ${cmd} 前 15s 未见 shell 提示符（shell 可能繁忙）`);
       await new Promise(r => setTimeout(r, 500));
       term.buf = "";
