@@ -12,7 +12,7 @@
 
 ## 主要插件
 
-OpenClash（smart 内核）、AdGuardHome、MosDNS、SmartDNS、msd_lite、rtp2httpd、DDNSTO、FRP、ZeroTier、WireGuard、SoftEther、OpenAppFilter、Samba4、Aria2、Transmission、SQM 等，主题 Argon + Edge。
+OpenClash（smart 内核）、AdGuardHome、MosDNS、SmartDNS、rtp2httpd、DDNSTO、FRP、ZeroTier、WireGuard、SoftEther、OpenAppFilter、Samba4、Aria2、Transmission、SQM 等，主题 Argon + Edge。
 
 ## 工作流
 
