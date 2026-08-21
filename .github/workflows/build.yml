@@ -66,7 +66,7 @@ jobs:
         git clone $REPO_URL -b $REPO_BRANCH openwrt
         cd openwrt
         echo "OPENWRT_PATH=$PWD" >> $GITHUB_ENV
-        COMMIT_AUTHOR=$(git show -s --date=short --format="作者: %an")
+        COMMIT_AUTHOR=$(git show -s --date=short --format="作者: %an" | python3 -c 'import sys, re, email.header as h; s = sys.stdin.read().strip(); s = re.sub(r"(?<!=)\?UTF-8\?[qQ]\?", "=?UTF-8?q?", s); print(h.make_header(h.decode_header(s)))')
         echo "COMMIT_AUTHOR=$COMMIT_AUTHOR" >> $GITHUB_ENV
         COMMIT_DATE=$(git show -s --date=short --format="时间: %ci")
         echo "COMMIT_DATE=$COMMIT_DATE" >> $GITHUB_ENV
