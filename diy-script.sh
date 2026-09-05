@@ -44,6 +44,9 @@ rm -rf feeds/luci/themes/luci-theme-argon
 rm -rf feeds/luci/themes/luci-theme-netgear
 rm -rf feeds/luci/applications/luci-app-mosdns
 rm -rf feeds/luci/applications/luci-app-serverchan
+# 移除 node 系列包，避免 BUILDONLY 的 node-yarn 触发 host-compile
+rm -rf feeds/packages/lang/node*
+rm -f package/feeds/packages/node*
 
 grep -q 'PROVIDES:=gnu-wget wget wget-any' feeds/packages/net/wget/Makefile \
   || sed -i 's/PROVIDES:=gnu-wget wget$/PROVIDES:=gnu-wget wget wget-any/' feeds/packages/net/wget/Makefile
