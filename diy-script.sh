@@ -133,5 +133,9 @@ fi
 sed -i 's/TARGET_CC/TARGET_CC_NOCACHE/g' feeds/packages/libs/icu/Makefile
 sed -i 's/TARGET_CXX/TARGET_CXX_NOCACHE/g' feeds/packages/libs/icu/Makefile
 
+# softethervpn5 host 仅需编译 hamcorebuilder，裁剪无用子目录避免因 ncurses/host 导致 cmake 报错
+sed -i 's/HOST_BUILD_DEPENDS:=ncurses\/host readline\/host/HOST_BUILD_DEPENDS:=/' feeds/packages/net/softethervpn5/Makefile
+sed -i '/define Host\/Prepare/,/endef/c\define Host/Prepare\n\t$(Host/Prepare/Default)\n\t$(SED) '\''/add_subdirectory(libhamcore)/b; /add_subdirectory(hamcorebuilder)/b; /add_subdirectory/d'\'' $(HOST_BUILD_DIR)/src/CMakeLists.txt\nendef' feeds/packages/net/softethervpn5/Makefile
+
 cp "$GITHUB_WORKSPACE/$CONFIG_FILE" .config
 make defconfig
