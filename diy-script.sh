@@ -79,7 +79,6 @@ cp -a package/luci-app-rtp2httpd/Makefile.versioned package/luci-app-rtp2httpd/M
 clone_pkg "https://github.com/vernesong/OpenClash" "package/luci-app-openclash" "dev" "luci-app-openclash"
 clone_pkg "https://github.com/kiddin9/luci-theme-edge" "package/luci-theme-edge"
 clone_pkg "https://github.com/jerrykuku/luci-theme-argon" "package/luci-theme-argon"
-clone_pkg "https://github.com/jerrykuku/luci-app-argon-config" "package/luci-app-argon-config"
 
 rm -rf feeds/packages/net/smartdns
 clone_pkg "https://github.com/pymumu/luci-app-smartdns" "feeds/luci/applications/luci-app-smartdns" "lede"
